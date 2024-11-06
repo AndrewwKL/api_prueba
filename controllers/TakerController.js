@@ -1,4 +1,4 @@
-// controllers/TakerController.js
+
 const Course = require('../models/Course');
 
 exports.filterCourses = async (req, res) => {
@@ -81,7 +81,6 @@ exports.checkout = async (req, res) => {
         const total = cart.courses.reduce((acc, item) => acc + item.price, 0);
         const totalWithDiscount = total - (total * (cart.discount / 100));
 
-        // Aquí podrías integrar una API de pago para procesar el pago real
 
         // Vaciar el carrito después del pago
         await Cart.findByIdAndDelete(cart._id);
@@ -96,10 +95,6 @@ exports.contactInstructor = async (req, res) => {
     try {
         const course = await Course.findById(courseId).populate('creatorId');
         if (!course) return res.status(404).json({ message: 'Course not found' });
-
-        // Simula el envío de un mensaje al instructor (esto puede ser un correo o un mensaje interno)
-        // Aquí puedes integrar una API de correo o sistema de mensajería
-
         res.status(200).json({ message: 'Message sent to instructor', instructor: course.creatorId });
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const CreatorController = require('../controllers/CreatorController');
-// const auth = require('../middleware/auth'); // Comentar esta línea temporalmente
+const auth = require('../middleware/auth'); 
 
 // Rutas para gestión de cursos
 router.post('/courses', /* auth, */ CreatorController.createCourse);

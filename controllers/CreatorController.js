@@ -1,16 +1,21 @@
-// controllers/CreatorController.js
+
 const Course = require('../models/Course');
 
 exports.createCourse = async (req, res) => {
     const { title, description, category, price } = req.body;
+
     try {
+        // Si req.user no está definido, asigna un ID de usuario ficticio para pruebas
+        const creatorId = req.user ? req.user.userId : 'dummyUserId';
+
         const course = new Course({
             title,
             description,
             category,
             price,
-            creatorId: req.user.userId // Asumiendo que el creador está autenticado
+            creatorId
         });
+
         await course.save();
         res.status(201).json(course);
     } catch (error) {
@@ -89,3 +94,8 @@ exports.getCourseRatings = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
+
+

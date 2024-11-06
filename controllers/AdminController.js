@@ -1,6 +1,6 @@
 const User = require('../models/User');
-const Offer = require('../models/Offer'); // Make sure to import the Offer model
-const Coupon = require('../models/Coupon'); // Make sure to import the Coupon model
+const Offer = require('../models/Offer'); 
+const Coupon = require('../models/Coupon'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -149,7 +149,7 @@ exports.login = async (req, res) => {
         // Generate a JWT token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            process.env.JWT_SECRET,  // Ensure this secret is set correctly
+            process.env.JWT_SECRET,  
             { expiresIn: '1h' }
         );
         

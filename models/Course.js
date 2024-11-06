@@ -1,4 +1,4 @@
-// models/Course.js
+
 const mongoose = require('mongoose');
 
 const CourseSchema = new mongoose.Schema({
@@ -26,8 +26,8 @@ const CourseSchema = new mongoose.Schema({
     },
     content: [{
         title: String,
-        url: String, // URL del video o archivo
-        type: String // Tipo de contenido (video, documento, etc.)
+        url: String, 
+        type: String 
     }],
     ratings: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

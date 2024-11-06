@@ -1,0 +1,29 @@
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Configuración del puerto
+const PORT = process.env.PORT || 5000;
+
+// Conexión a la base de datos
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Conexión exitosa a MongoDB"))
+  .catch((error) => console.log("Error al conectar a MongoDB:", error));
+
+// Rutas
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/creator', require('./routes/creator'));
+app.use('/api/taker', require('./routes/taker')); 
+
+
+// Inicialización del servidor
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
+

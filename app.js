@@ -20,6 +20,8 @@ mongoose
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/creator', require('./routes/creator'));
 app.use('/api/taker', require('./routes/taker')); 
+const authRoutes = require("./routes/authentication");
+app.use("/api/auth", authRoutes);
 
 
 // Inicialización del servidor

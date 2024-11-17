@@ -1,33 +1,24 @@
-// models/User.js
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 
 const UserSchema = new mongoose.Schema({
-    usuario: {
+    name: {
         type: String,
         required: true
     },
-    correo: {
+    email: {
         type: String,
         required: true,
         unique: true
     },
-    clave: {
+    password: {
         type: String,
         required: true
     },
     role: {
         type: String,
-        enum: ["admin", "user", "creator"], // Define los roles permitidos
+        enum: ["admin", "user", "creator"], // Define allowed roles
         default: "user"
     }
 });
-
-UserSchema.virtual('isNewUser').get(function () {
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-    return this.createdAt > oneMonthAgo;
-});
-
 
 module.exports = mongoose.model("User", UserSchema);

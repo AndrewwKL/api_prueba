@@ -25,9 +25,23 @@ const CourseSchema = new mongoose.Schema({
         required: true
     },
     content: [{
-        title: String,
-        url: String, // URL del video o archivo
-        type: String // Tipo de contenido (video, documento, etc.)
+        session: {
+            type: Number, // Indicates the session or day
+            required: true,
+        },
+        title: {
+            type: String,
+            required: true,
+        },
+        url: {
+            type: String, // URL of the video or file
+            required: true,
+        },
+        type: {
+            type: String, // Content type (video, document, etc.)
+            enum: ['video', 'document'],
+            required: true,
+        },
     }],
     ratings: [{
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

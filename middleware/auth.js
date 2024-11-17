@@ -1,8 +1,7 @@
-
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-module.exports = async(req, res, next) => {
+module.exports = async (req, res, next) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) return res.status(401).json({ message: "Access denied. No token provided." });
 
@@ -11,10 +10,14 @@ module.exports = async(req, res, next) => {
         const user = await User.findById(decoded.id);
         if (!user) return res.status(404).json({ message: "User not found." });
 
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        const isNewUser = user.createdAt > oneMonthAgo;
-        req.user = decoded,isNewUser;
+        if (user.role !== "creator") {
+            return res.status(403).json({ message: "Access denied. Creator role required." });
+        }
+
+        req.user = {
+            id: user._id, // Attach the user ID as id
+            role: user.role,
+        };
 
         next();
     } catch (error) {

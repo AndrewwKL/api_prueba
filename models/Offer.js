@@ -18,6 +18,18 @@ const OfferSchema = new mongoose.Schema({
         required: true,
         default: 'all', // Criteria for applying the offer (you can customize as needed)
     },
+    isFlashSale: {
+        type: Boolean,
+        default: false, // Indicates if the offer is a flash sale
+    },
+    validCategories: [{
+        type: String, // Categories to which the flash sale applies
+    }],
+    validUserTypes: {
+        type: String,
+        enum: ['all', 'new_users', 'long_term_users'],
+        default: 'all',
+    },
     createdAt: {
         type: Date,
         default: Date.now,

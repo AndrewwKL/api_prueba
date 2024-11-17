@@ -159,3 +159,37 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.createFlashSale = async (req, res) => {
+    const { title, discount, validCategories, validUserTypes, expiresAt } = req.body;
+
+    try {
+        const flashSale = new Offer({
+            title,
+            discount,
+            isFlashSale: true,
+            validCategories,
+            validUserTypes: validUserTypes || 'all',
+            expiresAt,
+        });
+
+        await flashSale.save();
+        res.status(201).json(flashSale);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.listFlashSales = async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const flashSales = await Offer.find({
+            isFlashSale: true,
+            expiresAt: { $gte: currentDate },
+        });
+
+        res.status(200).json(flashSales);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

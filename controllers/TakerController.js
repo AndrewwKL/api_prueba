@@ -13,7 +13,24 @@ exports.filterCourses = async (req, res) => {
         if (minRating) query.ratings = { $gte: parseFloat(minRating) };
 
         const courses = await Course.find(query);
-        res.status(200).json(courses);
+        const currentDate = new Date();
+        const flashSales = await Offer.find({
+            isFlashSale: true,
+            expiresAt: { $gte: currentDate },
+        });
+
+        const updatedCourses = courses.map(course => {
+            const applicableFlashSale = flashSales.find(sale =>
+                (!sale.validCategories.length || sale.validCategories.includes(course.category))
+            );
+
+            if (applicableFlashSale) {
+                course.price = course.price - (course.price * (applicableFlashSale.discount / 100));
+            }
+            return course;
+        });
+
+        res.status(200).json(updatedCourses);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

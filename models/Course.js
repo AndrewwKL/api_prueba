@@ -17,7 +17,7 @@ const CourseSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: true,
-        min: 0
+        min: 0  
     },
     creatorId: {
         type: mongoose.Schema.Types.ObjectId,

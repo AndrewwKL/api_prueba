@@ -21,7 +21,9 @@ router.post('/coupons', auth ,adminauth, AdminController.createCoupon);
 router.get('/coupons', auth ,adminauth,AdminController.listCoupons);
 router.delete('/coupons/:id', auth, adminauth ,AdminController.deleteCoupon);
 
-
+// Flash Sales Routes
+router.post('/flash-sales', auth, adminauth, AdminController.createFlashSale);
+router.get('/flash-sales', auth, adminauth, AdminController.listFlashSales);
 
 router.post('/login', AdminController.login);
 

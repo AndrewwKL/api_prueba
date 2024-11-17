@@ -159,3 +159,28 @@ exports.updateCoursePrice = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+exports.getCreatorAnalytics = async (req, res) => {
+    try {
+        // Count total courses created by the creator
+        const totalCourses = await Course.countDocuments({ creatorId: req.user.id });
+
+        // Aggregate revenue and ratings (if sales tracking exists)
+        const courses = await Course.find({ creatorId: req.user.id }).select('title price ratings content');
+        const totalRevenue = courses.reduce((sum, course) => sum + (course.price || 0), 0); // Replace with actual sales logic
+        const courseDetails = courses.map(course => ({
+            title: course.title,
+            price: course.price,
+            ratings: course.ratings,
+            contentCount: course.content.length,
+        }));
+
+        res.status(200).json({
+            totalCourses,
+            totalRevenue,
+            courseDetails,
+        });
+    } catch (error) {
+        console.error("Error fetching creator analytics:", error);
+        res.status(500).json({ message: error.message });
+    }
+};

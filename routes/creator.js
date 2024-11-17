@@ -17,6 +17,6 @@ router.delete('/courses/:id/content/:contentId', auth,  CreatorController.delete
 router.get('/courses/:id/ratings', auth,  CreatorController.getCourseRatings);
 
 router.put('/courses/:id/price', auth, CreatorController.updateCoursePrice);
-
+router.get('/analytics', auth, CreatorController.getCreatorAnalytics);
 
 module.exports = router;

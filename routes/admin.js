@@ -30,6 +30,8 @@ router.get('/flash-sales', auth, adminauth, AdminController.listFlashSales);
 router.post('/user-based-offers', auth, adminauth, AdminController.createUserBasedOffer);
 router.get('/user-based-offers', auth, adminauth, AdminController.listUserBasedOffers);
 
+router.get('/analytics', auth, adminauth, AdminController.getAdminAnalytics);
+
 router.post('/login', AdminController.login);
 
 module.exports = router;

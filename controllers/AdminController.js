@@ -3,8 +3,7 @@ const Offer = require('../models/Offer'); // Make sure to import the Offer model
 const Coupon = require('../models/Coupon'); // Make sure to import the Coupon model
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-
+const Course = require('../models/Course');
 
 
 // User Management Functions
@@ -257,6 +256,34 @@ exports.listUserBasedOffers = async (req, res) => {
 
         res.status(200).json(offers);
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getAdminAnalytics = async (req, res) => {
+    try {
+        // Count users by role
+        const totalUsers = await User.countDocuments();
+        const totalAdmins = await User.countDocuments({ role: 'admin' });
+        const totalCreators = await User.countDocuments({ role: 'creator' });
+        const totalTakers = await User.countDocuments({ role: 'user' });
+
+        // Count total courses
+        const totalCourses = await Course.countDocuments();
+
+        // Revenue placeholder (if sales tracking exists)
+        const totalRevenue = 0; // Replace with actual sales data
+
+        res.status(200).json({
+            totalUsers,
+            totalAdmins,
+            totalCreators,
+            totalTakers,
+            totalCourses,
+            totalRevenue,
+        });
+    } catch (error) {
+        console.error("Error fetching admin analytics:", error);
         res.status(500).json({ message: error.message });
     }
 };

@@ -1,6 +1,7 @@
-// controllers/TakerController.js
 const Course = require('../models/Course');
-const Message = require('../models/Message'); // Import the Message model
+const Message = require('../models/Message'); 
+const Cart = require('../models/Cart');
+const mongoose = require('mongoose');
 
 exports.filterCourses = async (req, res) => {
     const { category, minPrice, maxPrice, minRating } = req.query;
@@ -49,24 +50,39 @@ exports.filterCourses = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-const Cart = require('../models/Cart');
 
 exports.addToCart = async (req, res) => {
     const { courseId } = req.body;
-    try {
-        const course = await Course.findById(courseId);
-        if (!course) return res.status(404).json({ message: 'Course not found' });
 
-        let cart = await Cart.findOne({ userId: req.user.userId });
+    try {
+        // Validate the course exists
+        const course = await Course.findById(courseId);
+        if (!course) return res.status(404).json({ message: "Course not found" });
+
+        // Convert user ID to ObjectId
+        const userId = new mongoose.Types.ObjectId(req.user.id);
+
+        console.log("Authenticated User ID:", userId); // Debugging log
+
+        // Find or create a cart for the user
+        let cart = await Cart.findOne({ userId });
         if (!cart) {
-            cart = new Cart({ userId: req.user.userId, courses: [{ courseId, price: course.price }] });
-        } else {
-            cart.courses.push({ courseId, price: course.price });
+            cart = new Cart({ userId, courses: [] }); // Ensure userId is set as ObjectId
         }
 
+        // Check if the course is already in the cart
+        const courseExists = cart.courses.some(item => item.courseId.toString() === courseId);
+        if (courseExists) {
+            return res.status(400).json({ message: "Course is already in the cart." });
+        }
+
+        // Add the course to the cart
+        cart.courses.push({ courseId, price: course.price });
         await cart.save();
+
         res.status(200).json(cart);
     } catch (error) {
+        console.error("Error adding course to cart:", error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -103,26 +119,40 @@ exports.applyCoupon = async (req, res) => {
     }
 };
 exports.checkout = async (req, res) => {
+    const { cardNumber, expiryDate, cvv } = req.body;
+
     try {
-        const cart = await Cart.findOne({ userId: req.user.userId });
+        // Fetch the cart for the authenticated user
+        const cart = await Cart.findOne({ userId: req.user.id }).populate('courses.courseId');
         if (!cart || cart.courses.length === 0) {
-            return res.status(400).json({ message: 'Cart is empty' });
+            return res.status(400).json({ message: "Your cart is empty. Please add courses to your cart before checking out." });
         }
 
-        const total = cart.courses.reduce((acc, item) => acc + item.price, 0);
-        const totalWithDiscount = total - (total * (cart.discount / 100));
+        // Simulate payment details (no validation)
+        console.log("Simulated Payment Details:");
+        console.log(`Card Number: ${cardNumber}`);
+        console.log(`Expiry Date: ${expiryDate}`);
+        console.log(`CVV: ${cvv}`);
 
-        // Aquí podrías integrar una API de pago para procesar el pago real
+        // Calculate total price with optional discount
+        const subtotal = cart.courses.reduce((sum, item) => sum + item.price, 0);
+        const total = subtotal - (subtotal * (cart.discount / 100));
 
-        // Vaciar el carrito después del pago
+        // Simulate payment success
+        console.log(`Payment successful. Total charged: $${total.toFixed(2)}`);
+
+        // Clear the cart after checkout
         await Cart.findByIdAndDelete(cart._id);
 
-        res.status(200).json({ message: 'Purchase successful', total: totalWithDiscount });
+        res.status(200).json({
+            message: "Checkout successful",
+            total: total.toFixed(2),
+        });
     } catch (error) {
+        console.error("Error during checkout:", error);
         res.status(500).json({ message: error.message });
     }
 };
-
 
 exports.contactInstructor = async (req, res) => {
     const { courseId, message } = req.body;

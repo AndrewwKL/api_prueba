@@ -1,5 +1,6 @@
 // controllers/TakerController.js
 const Course = require('../models/Course');
+const Message = require('../models/Message'); // Import the Message model
 
 exports.filterCourses = async (req, res) => {
     const { category, minPrice, maxPrice, minRating } = req.query;
@@ -121,17 +122,37 @@ exports.checkout = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
 exports.contactInstructor = async (req, res) => {
     const { courseId, message } = req.body;
+
     try {
-        const course = await Course.findById(courseId).populate('creatorId');
-        if (!course) return res.status(404).json({ message: 'Course not found' });
+        const course = await Course.findById(courseId).populate('creatorId', 'name email');
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
 
-        // Simula el envío de un mensaje al instructor (esto puede ser un correo o un mensaje interno)
-        // Aquí puedes integrar una API de correo o sistema de mensajería
+        const instructor = course.creatorId;
 
-        res.status(200).json({ message: 'Message sent to instructor', instructor: course.creatorId });
+        // Save the message in the database
+        const savedMessage = await Message.create({
+            courseId,
+            instructorId: instructor._id,
+            takerId: req.user.id,
+            message,
+        });
+
+        res.status(200).json({
+            message: "Message sent successfully",
+            instructor: {
+                name: instructor.name,
+                email: instructor.email,
+            },
+            savedMessage,
+        });
     } catch (error) {
+        console.error("Error sending message to instructor:", error);
         res.status(500).json({ message: error.message });
     }
 };

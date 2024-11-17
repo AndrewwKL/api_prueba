@@ -132,3 +132,30 @@ exports.getCourseRatings = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+exports.updateCoursePrice = async (req, res) => {
+    const { id } = req.params; // Course ID from the URL
+    const { price } = req.body; // New price from the request body
+
+    try {
+        // Ensure the price is a positive number
+        if (price <= 0) {
+            return res.status(400).json({ message: "Price must be a positive number." });
+        }
+
+        // Find the course and ensure the authenticated user is the creator
+        const course = await Course.findOneAndUpdate(
+            { _id: id, creatorId: req.user.id }, // Match by course ID and creatorId
+            { price }, // Update the price
+            { new: true } // Return the updated document
+        );
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found or unauthorized." });
+        }
+
+        res.status(200).json(course); // Return the updated course
+    } catch (error) {
+        console.error("Error updating course price:", error);
+        res.status(500).json({ message: error.message });
+    }
+};

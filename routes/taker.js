@@ -15,4 +15,5 @@ router.post('/cart/apply-coupon', auth, TakerController.applyCoupon);
 router.post('/checkout', auth, TakerController.checkout);
 router.post('/contact-instructor', auth, TakerController.contactInstructor);
 
+
 module.exports = router;

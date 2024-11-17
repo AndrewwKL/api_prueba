@@ -16,4 +16,7 @@ router.delete('/courses/:id/content/:contentId', auth,  CreatorController.delete
 // Ruta para obtener calificaciones
 router.get('/courses/:id/ratings', auth,  CreatorController.getCourseRatings);
 
+router.put('/courses/:id/price', auth, CreatorController.updateCoursePrice);
+
+
 module.exports = router;

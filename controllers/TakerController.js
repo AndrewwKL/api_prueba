@@ -186,3 +186,22 @@ exports.contactInstructor = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.filterCoursesByCategory = async (req, res) => {
+    const { category } = req.query;
+
+    try {
+        // Ensure the category query parameter is provided
+        if (!category) {
+            return res.status(400).json({ message: "Category is required for filtering." });
+        }
+
+        // Fetch courses based on the category
+        const courses = await Course.find({ category });
+
+        res.status(200).json(courses);
+    } catch (error) {
+        console.error("Error filtering courses by category:", error);
+        res.status(500).json({ message: error.message });
+    }
+};

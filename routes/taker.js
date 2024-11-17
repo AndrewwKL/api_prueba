@@ -15,5 +15,5 @@ router.post('/cart/apply-coupon', auth, TakerController.applyCoupon);
 router.post('/checkout', auth, TakerController.checkout);
 router.post('/contact-instructor', auth, TakerController.contactInstructor);
 
-
+router.get('/courses/filter', auth, TakerController.filterCoursesByCategory);
 module.exports = router;

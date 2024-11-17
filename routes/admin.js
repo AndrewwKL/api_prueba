@@ -25,6 +25,11 @@ router.delete('/coupons/:id', auth, adminauth ,AdminController.deleteCoupon);
 router.post('/flash-sales', auth, adminauth, AdminController.createFlashSale);
 router.get('/flash-sales', auth, adminauth, AdminController.listFlashSales);
 
+
+// User-Based Offer Routes
+router.post('/user-based-offers', auth, adminauth, AdminController.createUserBasedOffer);
+router.get('/user-based-offers', auth, adminauth, AdminController.listUserBasedOffers);
+
 router.post('/login', AdminController.login);
 
 module.exports = router;

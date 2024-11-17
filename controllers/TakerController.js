@@ -18,6 +18,11 @@ exports.filterCourses = async (req, res) => {
             isFlashSale: true,
             expiresAt: { $gte: currentDate },
         });
+        const userOffers = await Offer.find({
+            validUserTypes: { $in: ['all', userType] },
+            isActive: true,
+            expiresAt: { $gte: currentDate },
+        });
 
         const updatedCourses = courses.map(course => {
             const applicableFlashSale = flashSales.find(sale =>
@@ -26,6 +31,14 @@ exports.filterCourses = async (req, res) => {
 
             if (applicableFlashSale) {
                 course.price = course.price - (course.price * (applicableFlashSale.discount / 100));
+            }
+
+            const applicableOffer = userOffers.find(offer =>
+                (!offer.validCategories || offer.validCategories.includes(course.category))
+            );
+
+            if (applicableOffer) {
+                course.price = course.price - (course.price * (applicableOffer.discount / 100));
             }
             return course;
         });

@@ -18,6 +18,11 @@ const OfferSchema = new mongoose.Schema({
         required: true,
         default: 'all', // Criteria for applying the offer (you can customize as needed)
     },
+    validUserTypes: {
+        type: String,
+        enum: ['all', 'new_users', 'long_term_users'],
+        default: 'all', // Defaults to all users
+    },
     isFlashSale: {
         type: Boolean,
         default: false, // Indicates if the offer is a flash sale
@@ -36,6 +41,10 @@ const OfferSchema = new mongoose.Schema({
     },
     expiresAt: {
         type: Date, // Optional: expiration date for the offer
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
     },
 });
 

@@ -23,4 +23,11 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
+UserSchema.virtual('isNewUser').get(function () {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return this.createdAt > oneMonthAgo;
+});
+
+
 module.exports = mongoose.model("User", UserSchema);

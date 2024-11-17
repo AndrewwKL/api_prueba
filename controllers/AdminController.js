@@ -193,3 +193,40 @@ exports.listFlashSales = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.createUserBasedOffer = async (req, res) => {
+    const { title, discount, validUserTypes, expiresAt } = req.body;
+
+    try {
+        const offer = new Offer({
+            title,
+            discount,
+            criteria: 'all',
+            validUserTypes: validUserTypes || 'all',
+            expiresAt,
+            isActive: true,
+        });
+
+        await offer.save();
+        res.status(201).json(offer);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.listUserBasedOffers = async (req, res) => {
+    const { userType } = req.query;
+
+    try {
+        const currentDate = new Date();
+        const offers = await Offer.find({
+            validUserTypes: { $in: ['all', userType] },
+            isActive: true,
+            expiresAt: { $gte: currentDate },
+        });
+
+        res.status(200).json(offers);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

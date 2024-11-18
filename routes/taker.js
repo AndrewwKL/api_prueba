@@ -16,4 +16,7 @@ router.post('/checkout', auth, TakerController.checkout);
 router.post('/contact-instructor', auth, TakerController.contactInstructor);
 
 router.get('/courses/filter', auth, TakerController.filterCoursesByCategory);
+
+router.get('/courses/:id/view', auth, TakerController.viewCourse);
+
 module.exports = router;

@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const Message = require('../models/Message'); 
 const Cart = require('../models/Cart');
 const mongoose = require('mongoose');
+const Coupon = require('../models/Coupon');
 
 exports.filterCourses = async (req, res) => {
     const { category, minPrice, maxPrice, minRating } = req.query;
@@ -99,22 +100,30 @@ exports.removeFromCart = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-const Coupon = require('../models/Coupon');
 
 exports.applyCoupon = async (req, res) => {
     const { code } = req.body;
+
     try {
+        // Fetch the authenticated user's cart
+        const cart = await Cart.findOne({ userId: req.user.id });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+
+        // Validate the coupon
         const coupon = await Coupon.findOne({ code, isActive: true });
-        if (!coupon) return res.status(404).json({ message: 'Coupon not found or inactive' });
+        if (!coupon) {
+            return res.status(404).json({ message: "Coupon not found or inactive" });
+        }
 
-        const cart = await Cart.findOne({ userId: req.user.userId });
-        if (!cart) return res.status(404).json({ message: 'Cart not found' });
-
+        // Apply the discount to the cart
         cart.discount = coupon.discount;
         await cart.save();
 
-        res.status(200).json(cart);
+        res.status(200).json({ message: "Coupon applied successfully", discount: coupon.discount });
     } catch (error) {
+        console.error("Error applying coupon:", error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -202,6 +211,38 @@ exports.filterCoursesByCategory = async (req, res) => {
         res.status(200).json(courses);
     } catch (error) {
         console.error("Error filtering courses by category:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.viewCourse = async (req, res) => {
+    const { id: courseId } = req.params;
+
+    try {
+        // Convertir el ID del curso al formato ObjectId
+        const courseObjectId = new mongoose.Types.ObjectId(courseId);
+
+        // Buscar si el curso está en el carrito del usuario
+        const cart = await Cart.findOne({
+            userId: new mongoose.Types.ObjectId(req.user.id),
+            "courses.courseId": courseObjectId
+        });
+
+        // Si el curso no está en el carrito
+        if (!cart) {
+            return res.status(403).json({ message: "You do not have access to this course." });
+        }
+
+        // Obtener el curso completo
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found." });
+        }
+
+        // Enviar el contenido del curso
+        res.status(200).json(course);
+    } catch (error) {
+        console.error("Error accessing course:", error);
         res.status(500).json({ message: error.message });
     }
 };

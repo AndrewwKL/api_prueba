@@ -9,7 +9,11 @@ const CartSchema = new mongoose.Schema({
     },
     courses: [{
         courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-        price: Number
+        price: Number,
+        purchased: {
+            type: Boolean,
+            default: false // Los cursos añadidos al carrito no están comprados por defecto
+        }
     }],
     discount: {
         type: Number,

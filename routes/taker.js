@@ -19,4 +19,9 @@ router.get('/courses/filter', auth, TakerController.filterCoursesByCategory);
 
 router.get('/courses/:id/view', auth, TakerController.viewCourse);
 
+router.get('/courses/my-courses', auth, TakerController.getPurchasedCourses);
+router.get('/cart', auth, TakerController.viewCart);
+
+
+
 module.exports = router;

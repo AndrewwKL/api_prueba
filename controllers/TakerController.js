@@ -128,35 +128,25 @@ exports.applyCoupon = async (req, res) => {
     }
 };
 exports.checkout = async (req, res) => {
-    const { cardNumber, expiryDate, cvv } = req.body;
-
     try {
-        // Fetch the cart for the authenticated user
-        const cart = await Cart.findOne({ userId: req.user.id }).populate('courses.courseId');
+        const cart = await Cart.findOne({ userId: req.user.id });
         if (!cart || cart.courses.length === 0) {
             return res.status(400).json({ message: "Your cart is empty. Please add courses to your cart before checking out." });
         }
 
-        // Simulate payment details (no validation)
-        console.log("Simulated Payment Details:");
-        console.log(`Card Number: ${cardNumber}`);
-        console.log(`Expiry Date: ${expiryDate}`);
-        console.log(`CVV: ${cvv}`);
+        // Calcular el total
+        const total = cart.courses.reduce((acc, item) => acc + item.price, 0);
+        const totalWithDiscount = total - (total * (cart.discount / 100));
 
-        // Calculate total price with optional discount
-        const subtotal = cart.courses.reduce((sum, item) => sum + item.price, 0);
-        const total = subtotal - (subtotal * (cart.discount / 100));
+        // Marcar el carrito como "comprado"
+        cart.courses = cart.courses.map(course => ({
+            ...course,
+            purchased: true // Añadimos una bandera para identificar los cursos comprados
+        }));
 
-        // Simulate payment success
-        console.log(`Payment successful. Total charged: $${total.toFixed(2)}`);
+        await cart.save();
 
-        // Clear the cart after checkout
-        await Cart.findByIdAndDelete(cart._id);
-
-        res.status(200).json({
-            message: "Checkout successful",
-            total: total.toFixed(2),
-        });
+        res.status(200).json({ message: "Checkout successful", total: totalWithDiscount });
     } catch (error) {
         console.error("Error during checkout:", error);
         res.status(500).json({ message: error.message });
@@ -243,6 +233,61 @@ exports.viewCourse = async (req, res) => {
         res.status(200).json(course);
     } catch (error) {
         console.error("Error accessing course:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getPurchasedCourses = async (req, res) => {
+    try {
+        // Buscar el carrito del usuario autenticado
+        const cart = await Cart.findOne({ userId: req.user.id }).populate('courses.courseId');
+
+        if (!cart || cart.courses.length === 0) {
+            return res.status(404).json({ message: "You have not purchased any courses yet." });
+        }
+
+        // Filtrar los cursos comprados
+        const purchasedCourses = cart.courses
+            .filter(course => course.purchased)
+            .map(course => ({
+                courseId: course.courseId._id,
+                title: course.courseId.title,
+                description: course.courseId.description,
+                price: course.courseId.price,
+                category: course.courseId.category
+            }));
+
+        if (purchasedCourses.length === 0) {
+            return res.status(404).json({ message: "You have not purchased any courses yet." });
+        }
+
+        res.status(200).json(purchasedCourses);
+    } catch (error) {
+        console.error("Error fetching purchased courses:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+exports.viewCart = async (req, res) => {
+    try {
+        // Buscar el carrito del usuario autenticado
+        const cart = await Cart.findOne({ userId: req.user.id }).populate('courses.courseId');
+
+        if (!cart || cart.courses.length === 0) {
+            return res.status(404).json({ message: "Your cart is empty." });
+        }
+
+        // Formatear los datos del carrito
+        const cartDetails = cart.courses.map(course => ({
+            courseId: course.courseId._id,
+            title: course.courseId.title,
+            description: course.courseId.description,
+            price: course.price,
+            purchased: course.purchased || false // Mostrar si el curso ya fue comprado
+        }));
+
+        res.status(200).json(cartDetails);
+    } catch (error) {
+        console.error("Error fetching cart:", error);
         res.status(500).json({ message: error.message });
     }
 };

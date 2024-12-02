@@ -21,7 +21,16 @@ router.post('/coupons', auth ,adminauth, AdminController.createCoupon);
 router.get('/coupons', auth ,adminauth,AdminController.listCoupons);
 router.delete('/coupons/:id', auth, adminauth ,AdminController.deleteCoupon);
 
+// Flash Sales Routes
+router.post('/flash-sales', auth, adminauth, AdminController.createFlashSale);
+router.get('/flash-sales', auth, adminauth, AdminController.listFlashSales);
 
+
+// User-Based Offer Routes
+router.post('/user-based-offers', auth, adminauth, AdminController.createUserBasedOffer);
+router.get('/user-based-offers', auth, adminauth, AdminController.listUserBasedOffers);
+
+router.get('/analytics', auth, adminauth, AdminController.getAdminAnalytics);
 
 router.post('/login', AdminController.login);
 

@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:4200', // Dominio del frontend Angular
+  credentials: true // Permitir envío de cookies o encabezados de autorización
+ }));
 app.use(express.json());
 
 // Configuración del puerto
